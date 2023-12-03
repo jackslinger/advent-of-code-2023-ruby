@@ -52,6 +52,7 @@ numbers = lines.map do |line|
 
   # puts converted
   just_numbers = converted.gsub(/\D/, "").split("")
+  puts "#{line} -> #{just_numbers.join("")}"
   (just_numbers.first.to_i * 10) + just_numbers.last.to_i
 end
 
