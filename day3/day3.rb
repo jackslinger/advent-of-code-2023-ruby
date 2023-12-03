@@ -1,3 +1,6 @@
+require "colorize"
+require "byebug"
+
 # lines = File.read("./day3/example.txt").split("\n")
 lines = File.read("./day3/input.txt").split("\n")
 
@@ -13,6 +16,10 @@ class Number
 
   def to_s
     "#{lexeme}: #{display_co_ordinates}"
+  end
+
+  def inspect
+    to_s
   end
 
   def display_co_ordinates
@@ -49,7 +56,11 @@ class Number
   end
 
   def part_number?
-    !adjacent_cells.all?{ |cell| cell == "." }
+    adjacent_cells.any?{ |cell| ![".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell) }
+  end
+
+  def pos_within?(cell_x, cell_y)
+    y == cell_y && (cell_x >= start_x && cell_x <= end_x)
   end
 
 end
@@ -63,6 +74,26 @@ class Schematic
     @numbers = find_numbers
   end
 
+  def display
+    @grid.each_with_index do |line, y|
+      line.each_with_index do |cell, x|
+        if ![".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
+          print cell.yellow
+        elsif ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
+          if numbers.any?{ |number| number.pos_within?(x, y) && number.part_number? }
+            print cell.green
+          else
+            print cell.red
+          end
+        else
+          print cell.white
+        end
+      end
+      print "\n"
+      # puts line.join("")
+    end
+  end
+
   private
 
   def find_numbers
@@ -73,16 +104,17 @@ class Schematic
       num_end = nil
       row.each_with_index do |cell, x|
         if found_number
-          if ["1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
+          if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
             num_end = x
           else
             numbers << Number.new(grid: @grid, start_x: num_start, end_x: num_end, y: y)
             found_number = false
           end
         else
-          if ["1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
+          if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
             found_number = true
             num_start = x
+            num_end = x
           end
         end
       end
@@ -98,4 +130,5 @@ schematic = Schematic.new(lines)
 #   puts "#{number} part number: #{number.part_number?}"
 # end
 
+schematic.display
 puts schematic.numbers.select{ |number| number.part_number? }.map{ |number| number.lexeme.to_i }.inject(&:+)
