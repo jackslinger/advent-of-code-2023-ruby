@@ -33,6 +33,10 @@ class Game
     end
   end
 
+  def power
+    highest_counts.map { |colour, count| count }.inject(&:*)
+  end
+
   private
 
   def parse_draws
@@ -83,8 +87,9 @@ bag = { "red" => 12, "green" => 13, "blue" => 14 }
 # end
 
 possible_games = games.select{ |game| game.possible_with(bag) }
-puts possible_games.map(&:number).inject(&:+)
+puts "Sum of possible game IDs #{possible_games.map(&:number).inject(&:+)}"
 
-# puts games.map(&:number)
-# puts games.first.draws.first.data
-# puts games.first.highest_counts
+games.each do |game|
+  puts "Game #{game.number} power: #{game.power}"
+end
+puts "Sum of game powers: #{games.map(&:power).inject(&:+)}"
