@@ -2,7 +2,13 @@ require "colorize"
 require "byebug"
 
 # lines = File.read("./day3/example.txt").split("\n")
+# lines = File.read("./day3/example2.txt").split("\n")
+# lines = File.read("./day3/example3.txt").split("\n")
+# lines = File.read("./day3/example4.txt").split("\n")
+# lines = File.read("./day3/example5.txt").split("\n")
 lines = File.read("./day3/input.txt").split("\n")
+
+VALID_NUMBERS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 class Number
   attr_reader :grid, :start_x, :end_x, :y
@@ -56,7 +62,7 @@ class Number
   end
 
   def part_number?
-    adjacent_cells.any?{ |cell| ![".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell) }
+    adjacent_cells.any?{ |cell| !cell.nil? && ![".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell) }
   end
 
   def pos_within?(cell_x, cell_y)
@@ -104,7 +110,11 @@ class Schematic
       num_end = nil
       row.each_with_index do |cell, x|
         if found_number
-          if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
+          if VALID_NUMBERS.include?(cell) && (row.length - 1) == x
+            num_end = x
+            numbers << Number.new(grid: @grid, start_x: num_start, end_x: num_end, y: y)
+            found_number = false
+          elsif ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].include?(cell)
             num_end = x
           else
             numbers << Number.new(grid: @grid, start_x: num_start, end_x: num_end, y: y)
@@ -131,4 +141,6 @@ schematic = Schematic.new(lines)
 # end
 
 schematic.display
+# puts schematic.numbers.first
+# puts schematic.numbers.first.adjacent_cells.map{ |cell| cell.nil? ? "?" : cell }.join(" ")
 puts schematic.numbers.select{ |number| number.part_number? }.map{ |number| number.lexeme.to_i }.inject(&:+)
