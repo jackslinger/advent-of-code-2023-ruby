@@ -8,7 +8,7 @@ class Card
 
   def initialize(line)
     @line = line
-    @number = line.match(/Card\s+(\d)+/)[1].to_i
+    @number = line.match(/Card\s+(\d+)/)[1].to_i
 
     winning_string, check_string = line.sub(/Card\s+\d+: /, "").split(" | ")
     @winning = winning_string.split(/\s/).reject(&:nil?).reject{ |str| str == "" }.map(&:to_i)
@@ -51,23 +51,17 @@ puts "\nPart 1"
 puts "Total score: #{cards.map(&:score).inject(&:+)}"
 
 puts "\nPart 2"
-originals = cards.dup
-cards_and_copies = cards.dup
 
-# originals.each do |card|
-#   puts "Card #{card.number}: #{card.cards_to_win.join(", ")}"
-# end
-
-i = 0
-while i < cards_and_copies.length
-  card = cards_and_copies[i]
-  puts i.to_s if i % 100 == 0
-
-  card.cards_to_win.each do |index|
-    cards_and_copies.push(originals[index-1].dup)
-  end
-  
-  i += 1
+card_counts = {}
+cards.size.times.each do |i|
+  card_counts[i + 1] = 1
 end
 
-puts cards_and_copies.size
+cards.each do |card|
+  card.cards_to_win.each do |extra_card_number|
+    card_counts[extra_card_number] += card_counts[card.number]
+  end
+end
+
+pp card_counts
+puts "Number of cards: #{card_counts.values.sum}"
